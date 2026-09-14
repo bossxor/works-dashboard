@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import {
   Github,
   Smartphone,
@@ -9,7 +9,10 @@ import {
   Star,
   GitFork,
   Loader2,
+  ChevronDown,
 } from 'lucide-react'
+
+type CardActions = 'apk' | 'web' | 'both'
 
 export const Route = createFileRoute('/')({
   component: Home,
@@ -130,8 +133,8 @@ function Home() {
           </h1>
         </div>
         <p className="text-gray-500 mb-8">
-          {GITHUB_OWNER} 계정의 GitHub 프로젝트를 한곳에서 확인하세요. APK
-          파일은 바로 다운로드하고, 웹앱은 새 탭에서 실행할 수 있습니다.
+          {GITHUB_OWNER} 계정의 GitHub 프로젝트를 APK / 웹앱 / 전체 저장소로
+          구분해 확인하세요. 각 섹션을 눌러 펼치거나 접을 수 있습니다.
         </p>
 
         {loading && (
@@ -154,37 +157,41 @@ function Home() {
         )}
 
         {!loading && repos.length > 0 && (
-          <div className="space-y-10">
+          <div className="space-y-4">
             <Section
               icon={<Smartphone className="w-5 h-5 text-emerald-600" />}
               title="APK 다운로드"
+              description="APK 파일만 다운로드할 수 있습니다."
               count={apkRepos.length}
               emptyText="APK 릴리스가 있는 저장소가 없습니다."
+              defaultOpen
             >
               {apkRepos.map((repo) => (
-                <RepoCard key={repo.id} repo={repo} />
+                <RepoCard key={repo.id} repo={repo} actions="apk" />
               ))}
             </Section>
 
             <Section
               icon={<Globe className="w-5 h-5 text-blue-600" />}
               title="웹앱"
+              description="웹앱을 새 탭에서 열 수만 있습니다."
               count={webAppRepos.length}
               emptyText="homepage가 설정된 웹앱 저장소가 없습니다."
             >
               {webAppRepos.map((repo) => (
-                <RepoCard key={repo.id} repo={repo} />
+                <RepoCard key={repo.id} repo={repo} actions="web" />
               ))}
             </Section>
 
             <Section
               icon={<Github className="w-5 h-5 text-gray-700" />}
               title="GitHub 전체 저장소"
+              description="APK 다운로드와 웹앱 열기가 모두 가능합니다."
               count={repos.length}
               emptyText="저장소가 없습니다."
             >
               {repos.map((repo) => (
-                <RepoCard key={repo.id} repo={repo} />
+                <RepoCard key={repo.id} repo={repo} actions="both" />
               ))}
             </Section>
           </div>
@@ -197,37 +204,75 @@ function Home() {
 function Section({
   icon,
   title,
+  description,
   count,
   emptyText,
   children,
+  defaultOpen = false,
 }: {
-  icon: React.ReactNode
+  icon: ReactNode
   title: string
+  description: string
   count: number
   emptyText: string
-  children: React.ReactNode
+  children: ReactNode
+  defaultOpen?: boolean
 }) {
+  const [open, setOpen] = useState(defaultOpen)
+
   return (
-    <section>
-      <div className="flex items-center gap-2 mb-4">
+    <section className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+      <button
+        type="button"
+        onClick={() => setOpen((prev) => !prev)}
+        aria-expanded={open}
+        className="w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-gray-50 transition-colors"
+      >
         {icon}
-        <h2 className="text-xl font-semibold text-gray-900">{title}</h2>
-        <span className="text-sm text-gray-400">({count})</span>
-      </div>
-      {count === 0 ? (
-        <p className="text-sm text-gray-400">{emptyText}</p>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {children}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
+            <span className="text-sm text-gray-400">({count})</span>
+          </div>
+          <p className="text-xs text-gray-500 mt-0.5">{description}</p>
+        </div>
+        <ChevronDown
+          className={`w-5 h-5 text-gray-400 shrink-0 transition-transform duration-200 ${
+            open ? 'rotate-180' : ''
+          }`}
+        />
+      </button>
+
+      {open && (
+        <div className="border-t border-gray-100 px-4 py-4">
+          {count === 0 ? (
+            <p className="text-sm text-gray-400">{emptyText}</p>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {children}
+            </div>
+          )}
         </div>
       )}
     </section>
   )
 }
 
-function RepoCard({ repo }: { repo: RepoWithExtras }) {
+function RepoCard({
+  repo,
+  actions,
+}: {
+  repo: RepoWithExtras
+  actions: CardActions
+}) {
+  const showApk = actions === 'apk' || actions === 'both'
+  const showWeb = actions === 'web' || actions === 'both'
+  const hasActions =
+    (showApk && repo.apkAssets.length > 0) ||
+    (showWeb && repo.hasWebApp && repo.homepage)
+
   return (
-    <div className="bg-white rounded-xl shadow-sm p-5 flex flex-col gap-3">
+    <div className="bg-gray-50 rounded-xl border border-gray-100 p-5 flex flex-col gap-3">
       <div>
         <a
           href={repo.html_url}
@@ -256,35 +301,38 @@ function RepoCard({ repo }: { repo: RepoWithExtras }) {
         </span>
       </div>
 
-      <div className="flex flex-col gap-2 mt-1">
-        {repo.apkAssets.map((asset) => (
-          <a
-            key={asset.browser_download_url}
-            href={asset.browser_download_url}
-            className="flex items-center justify-between gap-2 text-sm font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-lg px-3 py-2 transition-colors"
-          >
-            <span className="flex items-center gap-2 truncate">
-              <Download className="w-4 h-4 shrink-0" />
-              <span className="truncate">{asset.name}</span>
-            </span>
-            <span className="text-xs text-emerald-600 shrink-0">
-              {formatBytes(asset.size)}
-            </span>
-          </a>
-        ))}
+      {hasActions && (
+        <div className="flex flex-col gap-2 mt-1">
+          {showApk &&
+            repo.apkAssets.map((asset) => (
+              <a
+                key={asset.browser_download_url}
+                href={asset.browser_download_url}
+                className="flex items-center justify-between gap-2 text-sm font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-lg px-3 py-2 transition-colors"
+              >
+                <span className="flex items-center gap-2 truncate">
+                  <Download className="w-4 h-4 shrink-0" />
+                  <span className="truncate">{asset.name}</span>
+                </span>
+                <span className="text-xs text-emerald-600 shrink-0">
+                  {formatBytes(asset.size)}
+                </span>
+              </a>
+            ))}
 
-        {repo.hasWebApp && repo.homepage && (
-          <a
-            href={repo.homepage}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 text-sm font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-lg px-3 py-2 transition-colors"
-          >
-            <ExternalLink className="w-4 h-4" />
-            웹앱 새 탭에서 열기
-          </a>
-        )}
-      </div>
+          {showWeb && repo.hasWebApp && repo.homepage && (
+            <a
+              href={repo.homepage}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 text-sm font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-lg px-3 py-2 transition-colors"
+            >
+              <ExternalLink className="w-4 h-4" />
+              웹앱 새 탭에서 열기
+            </a>
+          )}
+        </div>
+      )}
     </div>
   )
 }
