@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, Link } from '@tanstack/react-router'
 import { useEffect, useState, type ReactNode } from 'react'
 import {
   Github,
@@ -194,12 +194,18 @@ function Home() {
             <span className="text-xs text-[#6b6660] dark:text-[#8d8a86] tracking-wide truncate">
               ~/{GITHUB_OWNER}/repos --live
             </span>
+            <Link
+              to="/admin"
+              className="ml-auto text-xs text-[#6b6660] dark:text-[#8d8a86] hover:text-[#b45f06] dark:hover:text-[#f0a13b]"
+            >
+              관리자
+            </Link>
             <button
               type="button"
               onClick={toggleTheme}
               aria-label="흑백 테마 전환"
               aria-pressed={theme === 'dark'}
-              className="ml-auto relative inline-flex h-6 w-12 shrink-0 items-center rounded-full border border-[#ddd8cc] dark:border-[#3a373f] bg-[#dcd6c6] dark:bg-[#0b0a0c] transition-colors"
+              className="relative inline-flex h-6 w-12 shrink-0 items-center rounded-full border border-[#ddd8cc] dark:border-[#3a373f] bg-[#dcd6c6] dark:bg-[#0b0a0c] transition-colors"
             >
               <span
                 className={`absolute left-0.5 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-white dark:bg-[#232128] shadow transition-transform duration-200 ${

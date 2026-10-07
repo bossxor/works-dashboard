@@ -1,6 +1,7 @@
 import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
 
 
+import { Gate } from '../auth'
 import '../styles.css'
 
 export const Route = createRootRoute({
@@ -34,7 +35,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         />
       </head>
       <body>
-        {children}
+        <Gate>{children}</Gate>
         <Scripts />
       </body>
     </html>
