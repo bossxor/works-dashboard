@@ -4,36 +4,37 @@ Overview of the project structure for developers and AI agents working on this c
 
 ## Project Overview
 
-A single-page dashboard that lets a user type in any GitHub username or organization and see all of
-its public repositories in one place, split into three views: repos with an APK download available
-in their latest GitHub release, repos with a `homepage` URL (treated as a runnable web app), and the
-full repo list. All data is fetched client-side directly from the public GitHub REST API — there is
-no backend, database, or stored GitHub account.
+A single-page dashboard listing the public repositories of the `bossxor` GitHub account, split into
+collapsible sections: APK downloads, web apps, PC tools, and the full repo list. All data is fetched
+client-side directly from the public GitHub REST API — there is no backend, database, or stored
+GitHub account.
+
+Live site: https://bossxor.github.io/works-dashboard/
 
 ### Tech Stack
 
 | Layer | Technology |
 |-------|------------|
-| Framework | TanStack Start |
+| Framework | TanStack Start (static prerender) |
 | Frontend | React 19, TanStack Router v1 |
 | Build | Vite 7 |
 | Styling | Tailwind CSS 4 |
 | Icons | lucide-react |
 | Language | TypeScript 5.9 (strict mode) |
-| Deployment | Netlify |
+| Deployment | GitHub Pages via GitHub Actions |
 
 ## Directory Structure
 
 ```
-├── public/                  # Static assets (favicon, logo)
+├── .github/workflows/pages.yml  # Build + deploy to GitHub Pages on push to main
+├── public/                      # Static assets (favicon, logo)
 ├── src
 │   ├── routes
-│   │   ├── __root.tsx        # Root layout: <html>/<head>/<body> shell, page title
-│   │   └── index.tsx         # The entire dashboard UI and GitHub API fetching logic
-│   ├── router.tsx            # TanStack Router setup
-│   └── styles.css            # Tailwind import + base font styling
-├── netlify.toml              # Netlify build command / publish dir / dev server settings
-├── vite.config.ts            # TanStack Start + React + Tailwind + Netlify vite plugins
+│   │   ├── __root.tsx           # <html>/<head>/<body> shell, page title, theme init script
+│   │   └── index.tsx            # The entire dashboard UI and GitHub API fetching logic
+│   ├── router.tsx               # TanStack Router setup
+│   └── styles.css               # Tailwind import, font, dark variant, keyframes
+├── vite.config.ts               # base '/works-dashboard/', prerender enabled
 └── tsconfig.json
 ```
 
@@ -41,31 +42,29 @@ no backend, database, or stored GitHub account.
 
 ### Data flow (all in `src/routes/index.tsx`)
 
-1. User types a GitHub username/org into the input and submits. The value is saved to
-   `localStorage` (`github-dashboard:owner`) so it's remembered on next visit.
-2. `GET https://api.github.com/users/{owner}/repos` fetches all public, non-archived repos.
-3. For each repo, `GET https://api.github.com/repos/{owner}/{repo}/releases/latest` is fetched to
-   look for assets ending in `.apk`. This is unauthenticated, so it is subject to GitHub's
-   ~60 requests/hour/IP rate limit — acceptable for personal/small-scale use, but there is no
-   token/auth wired in.
-4. Repos are categorized by:
-   - **APK download** — has at least one `.apk` release asset.
-   - **웹앱 (web app)** — has a non-empty `homepage` field on the repo (opens in a new tab).
-   - **GitHub 전체 저장소** — every fetched repo, regardless of category.
+1. `GET https://api.github.com/users/bossxor/repos` fetches public repos. Archived repos and this
+   repo itself (`works-dashboard`) are filtered out.
+2. For each repo, `GET https://api.github.com/repos/{owner}/{repo}/releases/latest` is fetched to
+   read release assets. This is unauthenticated, so it is subject to GitHub's ~60 requests/hour/IP
+   rate limit.
+3. Repos are categorized by:
+   - **APK 다운로드** — latest release has a `.apk` asset. Cards show only APK downloads.
+   - **웹앱** — repo has a `homepage`, or GitHub Pages enabled. Cards show only the web app link.
+   - **PC 툴** — latest release has a `.exe` / `.msi` / `.zip` asset. Cards show only PC downloads.
+   - **GitHub 전체 저장소** — every repo; cards show all available actions.
 
-A repo can appear in more than one section if it has both an APK and a homepage.
+A repo can appear in more than one section.
 
-### No backend / no persistence
+### Static hosting
 
-This is intentionally backend-free: no Netlify Function, no database. If a signed-in GitHub
-account or higher API rate limits are needed later, that would require a server-side proxy holding
-a GitHub token (see `netlify-functions` skill) rather than calling the GitHub API from the browser.
+`vite build` prerenders `/` into `dist/client/index.html`; GitHub Pages serves `dist/client` under
+`/works-dashboard/`. There is no server at runtime, so server functions / server routes won't work.
 
 ## Development Commands
 
 ```bash
-npm run dev      # Start dev server
-npm run build    # Production build
+pnpm dev     # Start dev server (http://localhost:3000/works-dashboard/)
+pnpm build   # Production build into dist/client
 ```
 
 ## Conventions
