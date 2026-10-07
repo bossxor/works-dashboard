@@ -392,17 +392,24 @@ function Section({
         />
       </button>
 
-      {open && (
-        <div className="border-t border-[#ddd8cc] dark:border-[#2a282e] p-4">
-          {count === 0 ? (
-            <p className="text-sm text-[#9a968f]">$ echo "{emptyText}"</p>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {children}
-            </div>
-          )}
+      <div
+        inert={!open}
+        className={`grid transition-[grid-template-rows,opacity] duration-300 ease-in-out ${
+          open ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
+        }`}
+      >
+        <div className="overflow-hidden">
+          <div className="border-t border-[#ddd8cc] dark:border-[#2a282e] p-4">
+            {count === 0 ? (
+              <p className="text-sm text-[#9a968f]">$ echo "{emptyText}"</p>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                {children}
+              </div>
+            )}
+          </div>
         </div>
-      )}
+      </div>
     </section>
   )
 }
