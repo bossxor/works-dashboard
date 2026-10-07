@@ -20,6 +20,7 @@ export const Route = createFileRoute('/')({
 })
 
 const GITHUB_OWNER = 'bossxor'
+const SELF_REPO = 'works-dashboard'
 const THEME_KEY = 'github-dashboard:theme'
 const PC_EXTENSIONS = ['.exe', '.msi', '.zip']
 
@@ -127,7 +128,9 @@ function Home() {
           )
         }
         const baseRepos: Array<GithubRepo> = await res.json()
-        const visibleRepos = baseRepos.filter((r) => !r.archived)
+        const visibleRepos = baseRepos.filter(
+          (r) => !r.archived && r.name !== SELF_REPO,
+        )
 
         const withExtras = await Promise.all(
           visibleRepos.map(async (repo) => {
