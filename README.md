@@ -1,34 +1,34 @@
 # GitHub 프로젝트 대시보드
 
-여러 곳에서 개발한 GitHub 프로젝트를 한곳에서 모아 볼 수 있는 대시보드입니다. GitHub 사용자명 또는
-조직명을 입력하면 해당 계정의 모든 public 저장소를 불러와서 다음 세 가지로 구분해 보여줍니다.
+`bossxor` 계정의 public 저장소를 한곳에서 모아 볼 수 있는 대시보드입니다.
 
-- **APK 다운로드** — 최신 GitHub Release에 `.apk` 파일이 첨부된 저장소. 바로 다운로드 링크 제공.
-- **웹앱** — 저장소의 homepage(웹사이트 URL)가 설정된 저장소. 새 탭에서 바로 실행.
-- **GitHub 전체 저장소** — 불러온 모든 public 저장소 목록.
+**사이트:** https://bossxor.github.io/works-dashboard/
+
+저장소를 다음 네 가지로 구분해 보여주며, 각 섹션은 접고 펼칠 수 있습니다.
+
+- **APK 다운로드** — 최신 GitHub Release에 `.apk` 파일이 있는 저장소. APK 다운로드만 표시.
+- **웹앱** — homepage가 설정됐거나 GitHub Pages가 켜진 저장소. 웹앱 열기만 표시.
+- **PC 툴** — 최신 Release에 `.exe` / `.msi` / `.zip` 파일이 있는 저장소. PC 파일 다운로드만 표시.
+- **GitHub 전체 저장소** — 모든 public 저장소. 위 버튼이 모두 표시됨.
+
+보관(archived)된 저장소와 이 대시보드 저장소(`works-dashboard`)는 목록에서 제외됩니다.
 
 ## 기술 스택
 
-- [TanStack Start](https://tanstack.com/start) (React 19 기반 풀스택 프레임워크)
-- TanStack Router
-- Tailwind CSS 4
-- lucide-react 아이콘
+- [TanStack Start](https://tanstack.com/start) (React 19), TanStack Router
+- Tailwind CSS 4, lucide-react 아이콘
 - GitHub REST API (브라우저에서 직접 호출, 별도 백엔드/DB 없음)
 
 ## 로컬 실행 방법
 
 ```bash
-npm install
-npm run dev
+pnpm install
+pnpm dev
 ```
 
-개발 서버가 뜨면 브라우저에서 열리는 페이지 상단 입력창에 GitHub 사용자명 또는 조직명(예:
-`octocat`)을 입력하고 "불러오기"를 누르면 저장소 목록이 표시됩니다. 입력한 사용자명은
-브라우저 localStorage에 저장되어 다음 방문 시 자동으로 불러옵니다.
-
-> GitHub API는 비로그인 상태로 호출되며 IP당 시간 60회 요청 제한이 있습니다. 저장소가 매우 많은
-> 계정이라면 일부 요청이 제한될 수 있습니다.
+> GitHub API는 비로그인 상태로 호출되며 IP당 시간 60회 요청 제한이 있습니다.
 
 ## 배포
 
-Netlify에 배포되며, 별도의 환경 변수나 데이터베이스 설정이 필요하지 않습니다.
+`main` 브랜치에 푸시하면 GitHub Actions(`.github/workflows/pages.yml`)가 정적 사이트로 빌드해
+GitHub Pages에 자동 배포합니다. 별도의 환경 변수나 데이터베이스 설정은 필요 없습니다.
