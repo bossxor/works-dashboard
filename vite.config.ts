@@ -5,14 +5,18 @@ import viteTsConfigPaths from 'vite-tsconfig-paths'
 import tailwindcss from '@tailwindcss/vite'
 import netlify from '@netlify/vite-plugin-tanstack-start'
 
+// Set by the GitHub Pages workflow; builds a static, prerendered site under this sub-path.
+const pagesBase = process.env.PAGES_BASE
+
 const config = defineConfig({
+  base: pagesBase ?? '/',
   plugins: [
     viteTsConfigPaths({
       projects: ['./tsconfig.json'],
     }),
     tailwindcss(),
-    netlify(),
-    tanstackStart(),
+    !pagesBase && netlify(),
+    tanstackStart(pagesBase ? { prerender: { enabled: true } } : undefined),
     viteReact(),
   ],
 })
