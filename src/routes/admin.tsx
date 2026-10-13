@@ -4,8 +4,10 @@ import {
   AUTH_FILE_PATH,
   Gate,
   buttonClass,
+  cardClass,
   fetchAuth,
   inputClass,
+  pageClass,
   sha256,
 } from '../auth'
 
@@ -42,29 +44,39 @@ function Admin() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#f6f3ec] text-[#1a1917] dark:bg-[#0e0d10] dark:text-[#ede9e3]">
-      <form onSubmit={onSubmit} className="flex flex-col gap-3 w-72">
-        <h1 className="text-lg font-bold"># 관리자</h1>
+    <div className={pageClass}>
+      <form onSubmit={onSubmit} className={cardClass}>
+        <h1 className="text-2xl font-bold">관리자</h1>
+
+        <h2 className="mt-4 font-bold">앱 목록 갱신</h2>
+        <p className="text-sm text-[#6e6e73] dark:text-[#a1a1a6]">
+          5분마다 자동 갱신됩니다. 바로 갱신하려면 열린 GitHub 화면에서 Run
+          workflow를 두 번 누르세요.
+        </p>
         <a
           href={`${REPO_URL}/actions/workflows/pages.yml`}
           target="_blank"
           rel="noopener noreferrer"
-          className={`${buttonClass} text-center`}
+          className={buttonClass}
         >
-          저장소 목록 갱신
+          지금 갱신
         </a>
-        <p className="text-xs text-[#6b6660] dark:text-[#9a968f]">
-          열린 GitHub 화면에서 Run workflow → Run workflow 클릭
-        </p>
-        <h2 className="mt-4 text-sm font-bold">비밀번호 변경</h2>
+
+        <h2 className="mt-6 font-bold">입장 비밀번호 변경</h2>
         <input name="password" type="password" placeholder="새 비밀번호" className={inputClass} />
         <input name="confirm" type="password" placeholder="새 비밀번호 확인" className={inputClass} />
         <button type="submit" className={buttonClass}>
           비밀번호 변경
         </button>
-        {status && <p className="text-xs">{status}</p>}
-        <Link to="/" className="text-xs text-[#6b6660] dark:text-[#9a968f] hover:underline">
-          ← 대시보드로
+        {status && (
+          <p className="text-sm text-[#6e6e73] dark:text-[#a1a1a6]">{status}</p>
+        )}
+
+        <Link
+          to="/"
+          className="mt-4 text-sm text-center text-[#6e6e73] dark:text-[#a1a1a6] hover:underline"
+        >
+          ← 앱 목록으로
         </Link>
       </form>
     </div>

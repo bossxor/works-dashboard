@@ -229,9 +229,11 @@ function AppCard({ app, tab, index }: { app: App; tab: Tab; index: number }) {
           {app.name.replace(/^(tool|game|inv)_/i, '').charAt(0).toUpperCase()}
         </div>
         <div className="min-w-0">
-          <h2 className="text-lg font-bold truncate">{app.name}</h2>
-          <p className="text-sm text-[#6e6e73] dark:text-[#a1a1a6] line-clamp-2">
-            {app.description || '설명이 없습니다.'}
+          <h2 className="text-lg font-bold line-clamp-2">
+            {app.description || app.name}
+          </h2>
+          <p className="text-xs text-[#6e6e73] dark:text-[#a1a1a6] truncate">
+            {app.name}
           </p>
         </div>
       </div>
