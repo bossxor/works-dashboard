@@ -135,10 +135,10 @@ function Home() {
         <header className="flex items-start justify-between gap-4">
           <div>
             <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">
-              {GITHUB_OWNER} 앱
+              {GITHUB_OWNER} Lab
             </h1>
             <p className="mt-2 text-base text-[#6e6e73] dark:text-[#a1a1a6]">
-              필요한 앱을 골라 바로 설치하세요.
+              직접 만든 앱들
             </p>
           </div>
           <div className="flex items-center gap-2 shrink-0">
