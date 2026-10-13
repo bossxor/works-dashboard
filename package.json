@@ -3,7 +3,9 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "predev": "node scripts/fetch-repos.mjs",
     "dev": "vite dev --port 3000",
+    "prebuild": "node scripts/fetch-repos.mjs",
     "build": "vite build"
   },
   "dependencies": {

@@ -20,7 +20,6 @@ export const Route = createFileRoute('/')({
 })
 
 const GITHUB_OWNER = 'bossxor'
-const SELF_REPO = 'works-dashboard'
 const THEME_KEY = 'github-dashboard:theme'
 const PC_EXTENSIONS = ['.exe', '.msi', '.zip']
 
@@ -58,19 +57,6 @@ function formatBytes(bytes: number) {
   if (bytes < 1024) return `${bytes} B`
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
-}
-
-async function fetchReleaseAssets(fullName: string): Promise<ReleaseAsset[]> {
-  try {
-    const res = await fetch(
-      `https://api.github.com/repos/${fullName}/releases/latest`,
-    )
-    if (!res.ok) return []
-    const release = await res.json()
-    return release.assets ?? []
-  } catch {
-    return []
-  }
 }
 
 function hasExtension(asset: ReleaseAsset, extensions: string[]) {
@@ -117,39 +103,28 @@ function Home() {
 
     async function load() {
       try {
-        const res = await fetch(
-          `https://api.github.com/users/${GITHUB_OWNER}/repos?per_page=100&sort=updated`,
-        )
-        if (!res.ok) {
-          throw new Error(
-            res.status === 404
-              ? '사용자 또는 조직을 찾을 수 없습니다.'
-              : 'GitHub API 요청에 실패했습니다.',
-          )
-        }
-        const baseRepos: Array<GithubRepo> = await res.json()
-        const visibleRepos = baseRepos.filter(
-          (r) => !r.archived && r.name !== SELF_REPO,
-        )
+        const res = await fetch(`${import.meta.env.BASE_URL}repos.json`, {
+          cache: 'no-store',
+        })
+        if (!res.ok) throw new Error('저장소 데이터를 불러오지 못했습니다.')
+        const baseRepos: Array<GithubRepo & { assets: ReleaseAsset[] }> =
+          await res.json()
 
-        const withExtras = await Promise.all(
-          visibleRepos.map(async (repo) => {
-            const assets = await fetchReleaseAssets(repo.full_name)
-            const webAppIsPages = !repo.homepage && repo.has_pages
-            const webAppUrl =
-              repo.homepage ||
-              (repo.has_pages
-                ? `https://${GITHUB_OWNER}.github.io/${repo.name}/`
-                : null)
-            return {
-              ...repo,
-              apkAssets: assets.filter((a) => hasExtension(a, ['.apk'])),
-              pcAssets: assets.filter((a) => hasExtension(a, PC_EXTENSIONS)),
-              webAppUrl,
-              webAppIsPages,
-            }
-          }),
-        )
+        const withExtras = baseRepos.map(({ assets, ...repo }) => {
+          const webAppIsPages = !repo.homepage && repo.has_pages
+          const webAppUrl =
+            repo.homepage ||
+            (repo.has_pages
+              ? `https://${GITHUB_OWNER}.github.io/${repo.name}/`
+              : null)
+          return {
+            ...repo,
+            apkAssets: assets.filter((a) => hasExtension(a, ['.apk'])),
+            pcAssets: assets.filter((a) => hasExtension(a, PC_EXTENSIONS)),
+            webAppUrl,
+            webAppIsPages,
+          }
+        })
 
         if (!cancelled) {
           setRepos(withExtras)
