@@ -203,6 +203,12 @@ const pillClass =
 const primaryPill = `${pillClass} bg-[#b45f06] text-white dark:bg-[#f0a13b] dark:text-[#1d1d1f]`
 const secondaryPill = `${pillClass} bg-black/5 text-[#b45f06] dark:bg-white/10 dark:text-[#f0a13b]`
 
+function pcLabel(fileName: string) {
+  if (/setup|install/i.test(fileName)) return '설치형'
+  const ext = fileName.split('.').pop()!.toLowerCase()
+  return ext === 'exe' ? '포터블' : ext.toUpperCase()
+}
+
 function AppRow({ app, tab }: { app: App; tab: Tab }) {
   const apk = tab === 'apk' || tab === 'all' ? app.apkAssets[0] : undefined
   const pcAssets = tab === 'pc' || tab === 'all' ? app.pcAssets : []
@@ -244,9 +250,7 @@ function AppRow({ app, tab }: { app: App; tab: Tab }) {
             title={`${asset.name} (${formatBytes(asset.size)})`}
             className={primaryPill}
           >
-            {pcAssets.length > 1
-              ? asset.name.split('.').pop()!.toUpperCase()
-              : '받기'}
+            {pcAssets.length > 1 ? pcLabel(asset.name) : '받기'}
           </a>
         ))}
         {webAppUrl && (
