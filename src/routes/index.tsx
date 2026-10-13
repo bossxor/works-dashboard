@@ -226,7 +226,7 @@ function AppCard({ app, tab, index }: { app: App; tab: Tab; index: number }) {
     >
       <div className="flex items-center gap-4">
         <div className={`w-14 h-14 shrink-0 rounded-2xl ${color} flex items-center justify-center text-2xl font-bold text-white`}>
-          {app.name.replace(/^(tool|game|inv)_/i, '').charAt(0).toUpperCase()}
+          {(app.description || app.name).replace(/^[^\p{L}\p{N}]+/u, '').charAt(0).toUpperCase()}
         </div>
         <div className="min-w-0">
           <h2 className="text-lg font-bold line-clamp-2">
