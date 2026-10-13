@@ -4,8 +4,8 @@ Overview of the project structure for developers and AI agents working on this c
 
 ## Project Overview
 
-A single-page dashboard listing the public repositories of the `bossxor` GitHub account, split into
-collapsible sections: APK downloads, web apps, PC tools, and the full repo list. All data is fetched
+An app-store style page listing the public repositories of the `bossxor` GitHub account, split into
+tabs: Android apps (APK), web apps, PC tools, and all repos. All data is fetched
 client-side directly from the public GitHub REST API — there is no backend, database, or stored
 GitHub account.
 
