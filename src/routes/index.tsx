@@ -191,7 +191,7 @@ function Home() {
               <span className="w-2.5 h-2.5 rounded-full bg-[#e5c07b]/60" />
               <span className="w-2.5 h-2.5 rounded-full bg-[#98c379]/60" />
             </div>
-            <span className="text-xs text-[#6b6660] dark:text-[#8d8a86] tracking-wide truncate">
+            <span className="font-mono text-xs text-[#6b6660] dark:text-[#8d8a86] tracking-wide truncate">
               ~/{GITHUB_OWNER}/repos --live
             </span>
             <Link
@@ -222,7 +222,7 @@ function Home() {
           </div>
 
           <div className="px-5 sm:px-8 py-8">
-            <p className="text-xs uppercase tracking-[0.2em] text-[#b45f06] dark:text-[#f0a13b] mb-2">
+            <p className="font-mono text-xs uppercase tracking-[0.2em] text-[#b45f06] dark:text-[#f0a13b] mb-2">
               # {GITHUB_OWNER}/dashboard
             </p>
             <h1 className="flex items-center gap-2 text-2xl sm:text-3xl font-bold tracking-tight">
@@ -268,7 +268,7 @@ function Home() {
             )}
 
             {!loading && !error && repos.length === 0 && (
-              <p className="py-16 text-center text-sm text-[#9a968f]">
+              <p className="py-16 text-center text-sm text-[#6b6660] dark:text-[#9a968f]">
                 $ echo "public 저장소를 찾을 수 없습니다."
               </p>
             )}
@@ -388,7 +388,7 @@ function Section({
             <h2 className="text-sm font-bold uppercase tracking-wider">
               {title}
             </h2>
-            <span className="text-xs text-[#9a968f]">[{count}]</span>
+            <span className="font-mono text-xs text-[#6b6660] dark:text-[#9a968f]">[{count}]</span>
           </div>
           <p className="text-xs text-[#6b6660] dark:text-[#9a968f] mt-0.5 truncate">
             {description}
@@ -410,7 +410,7 @@ function Section({
         <div className="overflow-hidden">
           <div className="border-t border-[#ddd8cc] dark:border-[#2a282e] p-4">
             {count === 0 ? (
-              <p className="text-sm text-[#9a968f]">$ echo "{emptyText}"</p>
+              <p className="text-sm text-[#6b6660] dark:text-[#9a968f]">$ echo "{emptyText}"</p>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                 {children}
@@ -427,7 +427,7 @@ function AssetLink({ asset }: { asset: ReleaseAsset }) {
   return (
     <a
       href={asset.browser_download_url}
-      className="flex items-center justify-between gap-2 text-xs font-semibold rounded border border-[#b45f06]/30 dark:border-[#f0a13b]/30 text-[#b45f06] dark:text-[#f0a13b] px-3 py-2 hover:bg-[#b45f06]/10 dark:hover:bg-[#f0a13b]/10 transition-colors"
+      className="flex items-center justify-between gap-2 font-mono text-xs font-semibold rounded border border-[#b45f06]/30 dark:border-[#f0a13b]/30 text-[#b45f06] dark:text-[#f0a13b] px-3 py-2 hover:bg-[#b45f06]/10 dark:hover:bg-[#f0a13b]/10 transition-colors"
     >
       <span className="flex items-center gap-2 truncate">
         <Download className="w-3.5 h-3.5 shrink-0" />
@@ -471,7 +471,7 @@ function RepoCard({
         </p>
       </div>
 
-      <div className="flex flex-wrap items-center gap-3 text-xs text-[#9a968f]">
+      <div className="flex flex-wrap items-center gap-3 text-xs text-[#6b6660] dark:text-[#9a968f]">
         {repo.language && <span>{repo.language}</span>}
         <span className="flex items-center gap-1">
           <Star className="w-3.5 h-3.5" />

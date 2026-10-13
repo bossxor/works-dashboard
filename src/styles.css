@@ -1,12 +1,17 @@
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap');
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css');
 @import "tailwindcss" source("../");
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+@theme {
+  --font-mono: 'JetBrains Mono', 'Pretendard Variable', ui-monospace, monospace;
+}
+
 body {
   @apply m-0;
-  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco,
-    Consolas, monospace;
+  font-family: 'Pretendard Variable', Pretendard, -apple-system,
+    'Malgun Gothic', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
