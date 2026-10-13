@@ -1,16 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
-import {
-  Github,
-  Smartphone,
-  Globe,
-  Monitor,
-  LayoutGrid,
-  Download,
-  ExternalLink,
-  Sun,
-  Moon,
-} from 'lucide-react'
+import { Smartphone, Globe, Monitor, LayoutGrid, Sun, Moon } from 'lucide-react'
 
 export const Route = createFileRoute('/')({
   component: Home,
@@ -33,7 +23,6 @@ const ICON_COLORS = [
 interface GithubRepo {
   id: number
   name: string
-  html_url: string
   description: string | null
   homepage: string | null
   has_pages: boolean
@@ -131,7 +120,7 @@ function Home() {
 
   return (
     <div className="min-h-screen bg-[#f5f5f7] text-[#1d1d1f] dark:bg-[#0e0d10] dark:text-[#f5f5f7] transition-colors">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-10">
         <header className="flex items-start justify-between gap-4">
           <div>
             <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">
@@ -159,16 +148,16 @@ function Home() {
           </div>
         </header>
 
-        <nav className="mt-8 flex gap-2 overflow-x-auto pb-1">
+        <nav className="mt-8 flex gap-1 overflow-x-auto border-b border-black/10 dark:border-white/10">
           {tabs.map((t) => (
             <button
               key={t.id}
               type="button"
               onClick={() => setTab(t.id)}
-              className={`flex items-center gap-2 shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
+              className={`flex items-center gap-1.5 shrink-0 -mb-px border-b-2 px-3 py-2.5 font-semibold transition-colors ${
                 tab === t.id
-                  ? 'bg-[#1d1d1f] text-white dark:bg-white dark:text-[#1d1d1f]'
-                  : 'bg-white text-[#1d1d1f] hover:bg-black/5 dark:bg-[#1c1c1e] dark:text-[#f5f5f7] dark:hover:bg-white/10'
+                  ? 'border-[#b45f06] text-[#b45f06] dark:border-[#f0a13b] dark:text-[#f0a13b]'
+                  : 'border-transparent text-[#6e6e73] hover:text-[#1d1d1f] dark:text-[#a1a1a6] dark:hover:text-white'
               }`}
             >
               <t.icon className="w-4 h-4" />
@@ -180,11 +169,7 @@ function Home() {
 
         <main className="mt-6">
           {loading && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="h-48 rounded-2xl bg-white dark:bg-[#1c1c1e] animate-pulse" />
-              ))}
-            </div>
+            <div className="h-96 rounded-2xl bg-white dark:bg-[#1c1c1e] animate-pulse" />
           )}
 
           {error && (
@@ -199,54 +184,61 @@ function Home() {
             </p>
           )}
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-start">
-            {current.list.map((app, i) => (
-              <AppCard key={app.id} app={app} tab={tab} index={i} />
-            ))}
-          </div>
+          {current.list.length > 0 && (
+            <div className="rounded-2xl bg-white dark:bg-[#1c1c1e] divide-y divide-black/5 dark:divide-white/10 overflow-hidden">
+              {current.list.map((app) => (
+                <AppRow key={app.id} app={app} tab={tab} />
+              ))}
+            </div>
+          )}
         </main>
       </div>
     </div>
   )
 }
 
-function AppCard({ app, tab, index }: { app: App; tab: Tab; index: number }) {
-  const assets = [
-    ...(tab === 'apk' || tab === 'all' ? app.apkAssets : []),
-    ...(tab === 'pc' || tab === 'all' ? app.pcAssets : []),
-  ]
+const pillClass =
+  'shrink-0 rounded-full px-5 py-1.5 text-sm font-bold transition-opacity hover:opacity-90'
+const primaryPill = `${pillClass} bg-[#b45f06] text-white dark:bg-[#f0a13b] dark:text-[#1d1d1f]`
+const secondaryPill = `${pillClass} bg-black/5 text-[#b45f06] dark:bg-white/10 dark:text-[#f0a13b]`
+
+function AppRow({ app, tab }: { app: App; tab: Tab }) {
+  const apk = tab === 'apk' || tab === 'all' ? app.apkAssets[0] : undefined
+  const pc = tab === 'pc' || tab === 'all' ? app.pcAssets[0] : undefined
   const webAppUrl = tab === 'web' || tab === 'all' ? app.webAppUrl : null
-  const [primary, ...others] = assets
-  const color = ICON_COLORS[app.id % ICON_COLORS.length]
+  const subtitle = {
+    apk: () => `Android · ${formatBytes(app.apkAssets[0].size)}`,
+    pc: () => `PC · ${formatBytes(app.pcAssets[0].size)}`,
+    web: () => '웹앱',
+    all: () =>
+      [app.apkAssets[0] && 'Android', app.pcAssets[0] && 'PC', app.webAppUrl && '웹']
+        .filter(Boolean)
+        .join(' · ') || app.name,
+  }[tab]()
+  const title = app.description || app.name
 
   return (
-    <div
-      className="flex flex-col gap-4 rounded-2xl bg-white dark:bg-[#1c1c1e] p-5 shadow-sm opacity-0 [animation:fadeInUp_0.3s_ease_forwards]"
-      style={{ animationDelay: `${Math.min(index, 12) * 30}ms` }}
-    >
-      <div className="flex items-center gap-4">
-        <div className={`w-14 h-14 shrink-0 rounded-2xl ${color} flex items-center justify-center text-2xl font-bold text-white`}>
-          {(app.description || app.name).replace(/^[^\p{L}\p{N}]+/u, '').charAt(0).toUpperCase()}
-        </div>
-        <div className="min-w-0">
-          <h2 className="text-lg font-bold line-clamp-2">
-            {app.description || app.name}
-          </h2>
-          <p className="text-xs text-[#6e6e73] dark:text-[#a1a1a6] truncate">
-            {app.name}
-          </p>
-        </div>
+    <div className="flex items-center gap-4 px-4 py-3">
+      <div
+        className={`w-12 h-12 shrink-0 rounded-2xl ${ICON_COLORS[app.id % ICON_COLORS.length]} flex items-center justify-center text-xl font-bold text-white`}
+      >
+        {title.replace(/^[^\p{L}\p{N}]+/u, '').charAt(0).toUpperCase()}
       </div>
-
-      <div className="flex flex-col gap-2">
-        {primary && (
-          <a
-            href={primary.browser_download_url}
-            className="flex items-center justify-center gap-2 rounded-xl bg-[#b45f06] dark:bg-[#f0a13b] text-white dark:text-[#1d1d1f] py-3 font-semibold hover:opacity-90 transition-opacity"
-          >
-            <Download className="w-4 h-4" />
-            다운로드
-            <span className="text-sm font-normal opacity-80">{formatBytes(primary.size)}</span>
+      <div className="min-w-0 flex-1">
+        <h2 className="font-semibold truncate">{title}</h2>
+        <p className="text-xs text-[#6e6e73] dark:text-[#a1a1a6] truncate">
+          {subtitle}
+        </p>
+      </div>
+      <div className="flex gap-1.5">
+        {apk && (
+          <a href={apk.browser_download_url} className={primaryPill}>
+            받기
+          </a>
+        )}
+        {pc && (
+          <a href={pc.browser_download_url} className={primaryPill}>
+            받기
           </a>
         )}
         {webAppUrl && (
@@ -254,34 +246,9 @@ function AppCard({ app, tab, index }: { app: App; tab: Tab; index: number }) {
             href={webAppUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className={`flex items-center justify-center gap-2 rounded-xl py-3 font-semibold transition-opacity hover:opacity-90 ${
-              primary
-                ? 'bg-black/5 dark:bg-white/10'
-                : 'bg-[#b45f06] dark:bg-[#f0a13b] text-white dark:text-[#1d1d1f]'
-            }`}
+            className={tab === 'web' ? primaryPill : secondaryPill}
           >
-            <ExternalLink className="w-4 h-4" />
-            웹에서 열기
-          </a>
-        )}
-        {others.map((asset) => (
-          <a
-            key={asset.browser_download_url}
-            href={asset.browser_download_url}
-            className="text-xs text-center text-[#6e6e73] dark:text-[#a1a1a6] hover:underline truncate"
-          >
-            다른 파일: {asset.name} ({formatBytes(asset.size)})
-          </a>
-        ))}
-        {tab === 'all' && (
-          <a
-            href={app.html_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center justify-center gap-1.5 text-xs text-[#6e6e73] dark:text-[#a1a1a6] hover:underline"
-          >
-            <Github className="w-3.5 h-3.5" />
-            GitHub에서 보기
+            열기
           </a>
         )}
       </div>
