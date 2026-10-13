@@ -199,7 +199,7 @@ function Home() {
             </p>
           )}
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-start">
             {current.list.map((app, i) => (
               <AppCard key={app.id} app={app} tab={tab} index={i} />
             ))}
@@ -238,7 +238,7 @@ function AppCard({ app, tab, index }: { app: App; tab: Tab; index: number }) {
         </div>
       </div>
 
-      <div className="mt-auto flex flex-col gap-2">
+      <div className="flex flex-col gap-2">
         {primary && (
           <a
             href={primary.browser_download_url}
