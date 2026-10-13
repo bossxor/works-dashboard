@@ -148,7 +148,7 @@ function Home() {
           </div>
         </header>
 
-        <nav className="mt-8 flex gap-1 overflow-x-auto border-b border-black/10 dark:border-white/10">
+        <nav className="mt-8 flex gap-1 overflow-x-auto [scrollbar-width:none] border-b border-black/10 dark:border-white/10">
           {tabs.map((t) => (
             <button
               key={t.id}
