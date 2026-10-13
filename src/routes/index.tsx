@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
-import { Smartphone, Globe, Monitor, LayoutGrid, Sun, Moon } from 'lucide-react'
+import { Github, Smartphone, Globe, Monitor, LayoutGrid, Sun, Moon } from 'lucide-react'
 
 export const Route = createFileRoute('/')({
   component: Home,
@@ -23,6 +23,7 @@ const ICON_COLORS = [
 interface GithubRepo {
   id: number
   name: string
+  html_url: string
   description: string | null
   homepage: string | null
   has_pages: boolean
@@ -204,7 +205,7 @@ const secondaryPill = `${pillClass} bg-black/5 text-[#b45f06] dark:bg-white/10 d
 
 function AppRow({ app, tab }: { app: App; tab: Tab }) {
   const apk = tab === 'apk' || tab === 'all' ? app.apkAssets[0] : undefined
-  const pc = tab === 'pc' || tab === 'all' ? app.pcAssets[0] : undefined
+  const pcAssets = tab === 'pc' || tab === 'all' ? app.pcAssets : []
   const webAppUrl = tab === 'web' || tab === 'all' ? app.webAppUrl : null
   const subtitle = {
     apk: () => `Android · ${formatBytes(app.apkAssets[0].size)}`,
@@ -236,11 +237,18 @@ function AppRow({ app, tab }: { app: App; tab: Tab }) {
             받기
           </a>
         )}
-        {pc && (
-          <a href={pc.browser_download_url} className={primaryPill}>
-            받기
+        {pcAssets.map((asset) => (
+          <a
+            key={asset.browser_download_url}
+            href={asset.browser_download_url}
+            title={`${asset.name} (${formatBytes(asset.size)})`}
+            className={primaryPill}
+          >
+            {pcAssets.length > 1
+              ? asset.name.split('.').pop()!.toUpperCase()
+              : '받기'}
           </a>
-        )}
+        ))}
         {webAppUrl && (
           <a
             href={webAppUrl}
@@ -251,6 +259,16 @@ function AppRow({ app, tab }: { app: App; tab: Tab }) {
             열기
           </a>
         )}
+        <a
+          href={app.html_url}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="GitHub에서 보기"
+          title="GitHub에서 보기"
+          className="shrink-0 p-1.5 rounded-full text-[#6e6e73] hover:bg-black/5 dark:text-[#a1a1a6] dark:hover:bg-white/10"
+        >
+          <Github className="w-5 h-5" />
+        </a>
       </div>
     </div>
   )
