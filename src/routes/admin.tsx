@@ -1,9 +1,20 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useState, type FormEvent } from 'react'
-import { AUTH_FILE_PATH, buttonClass, inputClass, sha256 } from '../auth'
+import {
+  AUTH_FILE_PATH,
+  Gate,
+  buttonClass,
+  fetchAuth,
+  inputClass,
+  sha256,
+} from '../auth'
 
 export const Route = createFileRoute('/admin')({
-  component: Admin,
+  component: () => (
+    <Gate admin>
+      <Admin />
+    </Gate>
+  ),
 })
 
 const REPO_URL = 'https://github.com/bossxor/works-dashboard'
@@ -19,8 +30,10 @@ function Admin() {
       setStatus('새 비밀번호가 비어있거나 확인과 다릅니다.')
       return
     }
+    const { adminHash } = await fetchAuth()
+    const hash = await sha256(password)
     await navigator.clipboard.writeText(
-      `{ "hash": "${await sha256(password)}" }\n`,
+      `${JSON.stringify({ hash, adminHash }, null, 2)}\n`,
     )
     window.open(`${REPO_URL}/edit/main/${AUTH_FILE_PATH}`, '_blank')
     setStatus(

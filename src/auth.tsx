@@ -18,19 +18,35 @@ export const inputClass =
 export const buttonClass =
   'rounded bg-[#b45f06] dark:bg-[#f0a13b] text-white dark:text-[#0e0d10] py-2 text-sm font-semibold disabled:opacity-50'
 
-export function Gate({ children }: { children: ReactNode }) {
+export interface AuthFile {
+  hash: string
+  adminHash: string
+}
+
+export function fetchAuth(): Promise<AuthFile> {
+  return fetch(`${import.meta.env.BASE_URL}auth.json`, {
+    cache: 'no-store',
+  }).then((res) => res.json())
+}
+
+export function Gate({
+  children,
+  admin = false,
+}: {
+  children: ReactNode
+  admin?: boolean
+}) {
   const [hash, setHash] = useState<string | null>(null)
   const [unlocked, setUnlocked] = useState(false)
   const [wrong, setWrong] = useState(false)
 
   useEffect(() => {
-    fetch(`${import.meta.env.BASE_URL}auth.json`, { cache: 'no-store' })
-      .then((res) => res.json())
-      .then((data: { hash: string }) => {
-        setHash(data.hash)
-        if (localStorage.getItem(AUTH_KEY) === data.hash) setUnlocked(true)
-      })
-  }, [])
+    fetchAuth().then((data) => {
+      const h = admin ? data.adminHash : data.hash
+      setHash(h)
+      if (!admin && localStorage.getItem(AUTH_KEY) === h) setUnlocked(true)
+    })
+  }, [admin])
 
   if (unlocked) return children
   if (!hash) return null
@@ -41,7 +57,7 @@ export function Gate({ children }: { children: ReactNode }) {
       String(new FormData(e.currentTarget).get('password')),
     )
     if (input === hash) {
-      localStorage.setItem(AUTH_KEY, input)
+      if (!admin) localStorage.setItem(AUTH_KEY, input)
       setUnlocked(true)
     } else {
       setWrong(true)
@@ -52,7 +68,7 @@ export function Gate({ children }: { children: ReactNode }) {
     <div className="min-h-screen flex items-center justify-center bg-[#f6f3ec] text-[#1a1917] dark:bg-[#0e0d10] dark:text-[#ede9e3]">
       <form onSubmit={onSubmit} className="flex flex-col gap-3 w-64">
         <label className="font-mono text-sm text-[#b45f06] dark:text-[#f0a13b]">
-          $ password:
+          $ {admin ? 'admin ' : ''}password:
         </label>
         <input name="password" type="password" autoFocus className={inputClass} />
         {wrong && (
