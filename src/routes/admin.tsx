@@ -8,6 +8,7 @@ import {
   fetchAuth,
   inputClass,
   pageClass,
+  PIN_LENGTH,
   sha256,
 } from '../auth'
 
@@ -28,8 +29,12 @@ function Admin() {
     e.preventDefault()
     const form = new FormData(e.currentTarget)
     const password = String(form.get('password'))
-    if (!password || password !== form.get('confirm')) {
-      setStatus('새 비밀번호가 비어있거나 확인과 다릅니다.')
+    if (!new RegExp(`^\\d{${PIN_LENGTH}}$`).test(password)) {
+      setStatus(`비밀번호는 숫자 ${PIN_LENGTH}자리여야 합니다.`)
+      return
+    }
+    if (password !== form.get('confirm')) {
+      setStatus('새 비밀번호 확인이 다릅니다.')
       return
     }
     const { adminHash } = await fetchAuth()
@@ -63,8 +68,8 @@ function Admin() {
         </a>
 
         <h2 className="mt-6 font-bold">입장 비밀번호 변경</h2>
-        <input name="password" type="password" placeholder="새 비밀번호" className={inputClass} />
-        <input name="confirm" type="password" placeholder="새 비밀번호 확인" className={inputClass} />
+        <input name="password" type="password" inputMode="numeric" maxLength={PIN_LENGTH} placeholder={`새 비밀번호 (숫자 ${PIN_LENGTH}자리)`} className={inputClass} />
+        <input name="confirm" type="password" inputMode="numeric" maxLength={PIN_LENGTH} placeholder="새 비밀번호 확인" className={inputClass} />
         <button type="submit" className={buttonClass}>
           비밀번호 변경
         </button>
