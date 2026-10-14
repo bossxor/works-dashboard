@@ -96,7 +96,13 @@ function Home() {
       })
       .then((repos: Array<GithubRepo & { assets: ReleaseAsset[] }>) =>
         setApps(
-          repos.map(({ assets, ...repo }) => ({
+          repos
+            .sort((a, b) =>
+              (b.released_at ?? b.pushed_at).localeCompare(
+                a.released_at ?? a.pushed_at,
+              ),
+            )
+            .map(({ assets, ...repo }) => ({
             ...repo,
             apkAssets: assets.filter((a) => hasExtension(a, ['.apk'])),
             pcAssets: assets.filter((a) => hasExtension(a, PC_EXTENSIONS)),
