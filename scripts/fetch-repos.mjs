@@ -19,10 +19,15 @@ if (!repos) throw new Error('Failed to fetch repo list')
 const result = await Promise.all(
   repos
     .filter((r) => !r.archived && r.name !== SELF_REPO)
-    .map(async (r) => ({
-      ...r,
-      assets: (await api(`/repos/${r.full_name}/releases/latest`))?.assets ?? [],
-    })),
+    .map(async (r) => {
+      const release = await api(`/repos/${r.full_name}/releases/latest`)
+      return {
+        ...r,
+        assets: release?.assets ?? [],
+        version: release?.tag_name ?? null,
+        released_at: release?.published_at ?? null,
+      }
+    }),
 )
 
 await writeFile('public/repos.json', JSON.stringify(result))

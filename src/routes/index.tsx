@@ -27,6 +27,9 @@ interface GithubRepo {
   description: string | null
   homepage: string | null
   has_pages: boolean
+  pushed_at: string
+  version: string | null
+  released_at: string | null
 }
 
 interface ReleaseAsset {
@@ -223,6 +226,17 @@ function AppRow({ app, tab }: { app: App; tab: Tab }) {
         .join(' · ') || app.name,
   }[tab]()
   const title = app.description || app.name
+  const updated = new Date(app.released_at ?? app.pushed_at).toLocaleString(
+    'ko-KR',
+    {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    },
+  )
 
   return (
     <div className="flex items-center gap-4 px-4 py-3">
@@ -232,9 +246,16 @@ function AppRow({ app, tab }: { app: App; tab: Tab }) {
         {title.replace(/^[^\p{L}\p{N}]+/u, '').charAt(0).toUpperCase()}
       </div>
       <div className="min-w-0 flex-1">
-        <h2 className="font-semibold truncate">{title}</h2>
+        <div className="flex items-center gap-2 min-w-0">
+          <h2 className="font-semibold truncate">{title}</h2>
+          {app.version && (
+            <span className="shrink-0 rounded-md bg-black/5 dark:bg-white/10 px-1.5 py-0.5 text-[11px] font-semibold text-[#6e6e73] dark:text-[#a1a1a6]">
+              {app.version}
+            </span>
+          )}
+        </div>
         <p className="text-xs text-[#6e6e73] dark:text-[#a1a1a6] truncate">
-          {subtitle}
+          {subtitle} · {updated} 업데이트
         </p>
       </div>
       <div className="flex gap-1.5">
