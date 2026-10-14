@@ -46,6 +46,61 @@ interface App extends GithubRepo {
 
 type Tab = 'apk' | 'web' | 'pc' | 'all'
 
+type RawRepo = GithubRepo & { assets: ReleaseAsset[] }
+
+interface GithubRelease {
+  tag_name: string
+  published_at: string
+  assets: ReleaseAsset[]
+}
+
+async function githubApi<T>(path: string): Promise<T | null> {
+  const res = await fetch(`https://api.github.com${path}`)
+  return res.ok ? res.json() : null
+}
+
+// Live check on visit: 1 request, plus a release request only for repos pushed since the build snapshot.
+async function refreshRepos(snapshot: RawRepo[]): Promise<RawRepo[]> {
+  const live = await githubApi<Array<GithubRepo & { archived: boolean }>>(
+    `/users/${GITHUB_OWNER}/repos?per_page=100&sort=updated`,
+  )
+  if (!live) throw new Error('rate limited')
+  return Promise.all(
+    live
+      .filter((r) => !r.archived && r.name !== 'works-dashboard')
+      .map(async (r) => {
+        const old = snapshot.find((s) => s.id === r.id)
+        if (old?.pushed_at === r.pushed_at) {
+          return { ...r, assets: old.assets, version: old.version, released_at: old.released_at }
+        }
+        const release = await githubApi<GithubRelease>(
+          `/repos/${GITHUB_OWNER}/${r.name}/releases/latest`,
+        )
+        return {
+          ...r,
+          assets: release?.assets ?? [],
+          version: release?.tag_name ?? null,
+          released_at: release?.published_at ?? null,
+        }
+      }),
+  )
+}
+
+function toApps(repos: RawRepo[]): App[] {
+  return [...repos]
+    .sort((a, b) =>
+      (b.released_at ?? b.pushed_at).localeCompare(a.released_at ?? a.pushed_at),
+    )
+    .map(({ assets, ...repo }) => ({
+      ...repo,
+      apkAssets: assets.filter((a) => hasExtension(a, ['.apk'])),
+      pcAssets: assets.filter((a) => hasExtension(a, PC_EXTENSIONS)),
+      webAppUrl:
+        repo.homepage ||
+        (repo.has_pages ? `https://${GITHUB_OWNER}.github.io/${repo.name}/` : null),
+    }))
+}
+
 function formatBytes(bytes: number) {
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
@@ -94,26 +149,10 @@ function Home() {
         if (!res.ok) throw new Error('앱 목록을 불러오지 못했습니다.')
         return res.json()
       })
-      .then((repos: Array<GithubRepo & { assets: ReleaseAsset[] }>) =>
-        setApps(
-          repos
-            .sort((a, b) =>
-              (b.released_at ?? b.pushed_at).localeCompare(
-                a.released_at ?? a.pushed_at,
-              ),
-            )
-            .map(({ assets, ...repo }) => ({
-            ...repo,
-            apkAssets: assets.filter((a) => hasExtension(a, ['.apk'])),
-            pcAssets: assets.filter((a) => hasExtension(a, PC_EXTENSIONS)),
-            webAppUrl:
-              repo.homepage ||
-              (repo.has_pages
-                ? `https://${GITHUB_OWNER}.github.io/${repo.name}/`
-                : null),
-          })),
-        ),
-      )
+      .then((snapshot: RawRepo[]) => {
+        setApps(toApps(snapshot))
+        refreshRepos(snapshot).then((repos) => setApps(toApps(repos)), () => {})
+      })
       .catch((err) =>
         setError(err instanceof Error ? err.message : '알 수 없는 오류'),
       )
