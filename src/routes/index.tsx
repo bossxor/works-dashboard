@@ -67,7 +67,7 @@ async function refreshRepos(snapshot: RawRepo[]): Promise<RawRepo[]> {
   if (!live) throw new Error('rate limited')
   return Promise.all(
     live
-      .filter((r) => !r.archived && r.name !== 'works-dashboard')
+      .filter((r) => !r.archived && r.name !== 'works-dashboard' && r.name !== 'birthday')
       .map(async (r) => {
         const old = snapshot.find((s) => s.id === r.id)
         if (old?.pushed_at === r.pushed_at) {
