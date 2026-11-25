@@ -55,8 +55,8 @@ function Admin() {
 
         <h2 className="mt-4 font-bold">앱 목록 갱신</h2>
         <p className="text-sm text-[#6e6e73] dark:text-[#a1a1a6]">
-          앱 릴리스 시 자동 갱신됩니다. 바로 갱신하려면 열린 GitHub 화면에서
-          Submit을 누르세요. 1~2분 뒤 반영됩니다.
+          접속 시 최신 목록을 확인합니다. 빌드 스냅샷까지 바로 갱신하려면
+          열린 GitHub 화면에서 Submit을 누르세요. 1~2분 뒤 반영됩니다.
         </p>
         <a
           href={`${REPO_URL}/issues/new?title=refresh`}

@@ -6,8 +6,6 @@ on:
   workflow_dispatch:
   issues:
     types: [opened]
-  schedule:
-    - cron: '*/5 * * * *'
 
 permissions:
   contents: read
